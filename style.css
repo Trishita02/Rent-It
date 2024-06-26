@@ -1,0 +1,197 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial;
+    margin: 0px;
+}
+
+.nav-bar {
+    height: 60px;
+    background-color: #E3E6F3;
+    color: #088178;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.nav-icons p {
+    display: inline;
+    margin-left: 10px; /* Adjusted margin for responsiveness */
+}
+
+.nav-icons {
+    width: 70%;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+/* Media Queries for Responsiveness */
+#hero{
+    width: 100%;
+    background-position: 100%;
+}
+
+@media screen and (max-width: 768px) {
+    .nav-bar {
+        flex-direction: column; /* Stack items vertically on smaller screens */
+        height: auto; /* Let the height grow with content */
+    }
+    
+    .nav-icons {
+        width: auto; /* Let the width grow with content */
+        margin-top: 10px; /* Adjust spacing from the top */
+    }
+    
+    .nav-icons p {
+        margin-left: 0; /* Remove left margin */
+        margin-bottom: 5px; /* Add spacing between icons */
+    }
+}
+.nav-icons a:hover{
+    cursor: pointer;
+    margin-left: 20px;
+}
+
+.hero-section{
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+.button1 {
+    font-weight: 400;
+    position: absolute;
+    color:black;
+    bottom: 281px;
+    right: 62%;
+    transform: translateX(-50%);
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.7);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.button2{
+    position: absolute;
+    bottom: 284px;
+    left: 76%;
+    transform: translateX(-50%);
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.7);
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.button2 ,.button1{
+    background-color: #088178; /* Green */
+}
+
+.button1:hover, .button2:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+    transform: translateY(5px);
+}
+.hero-section1{
+    background-image: url("gareeb.jpeg");
+    height: 400px;
+    width:50%;
+    background-size: cover;
+}
+.hero-section2{
+    background-image: url("rentclothes.png");
+    height: 400px;
+    width:50%;
+    background-size: cover;
+}
+.hero-msg {
+    background-image: linear-gradient(to bottom right, white, black);
+    color: #0a0c1c;
+    height: auto; /* Change height to auto */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    overflow: hidden; /* This is important for the animation */
+}
+
+.hero-msg p {
+    color:rgb(2, 23, 23);
+    font-family: 'Amita', cursive;
+    margin: auto;
+    animation: moveText 10s linear infinite; /* Adjust duration and timing function as needed */
+}
+
+@keyframes moveText {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.footer{
+    margin-top: 5px;
+}
+.foot-panel1{
+    background-color: #088178;
+    color: white;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.5rem;
+}
+.foot-panel2{
+    background-color: rgb(2, 23, 23);
+    color: aliceblue;
+    height: 250px;
+    display: flex;
+    justify-content: space-evenly;
+}
+ul{
+    margin-top: 20px;
+}
+ul a{
+    display: block;
+    font-size: 0.85rem;
+    margin-top: 10px;
+}
+.foot-panel3{
+    background-color: rgb(2, 23, 23) ;
+    color: white;
+    border-top: 0.5px solid white;
+    height:70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.logo{
+    background-image: url("imagess.png");
+    background-size: cover;
+    height: 50px;
+    width: 100px;
+}
+.foot-panel4{
+    background-color: black;
+    color: white;
+    height: 80px;
+   
+}
+.pages{
+   font-size: 0.7rem;
+   text-align: center;
+   padding-top: 25px;
+}
+.copyright{
+   font-size: 0.7rem;
+   text-align: center;
+   padding-top: 5px;
+}
