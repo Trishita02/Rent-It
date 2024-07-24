@@ -1,9 +1,62 @@
+<?php
+require('..\admin\connection.php');
+$amount = 0;
+if (isset($_SESSION['login_id'])) {
+    $email = $_SESSION['login_id'];
+    $result = mysqli_query($con, "SELECT SUM(price) AS total_price FROM cart WHERE email='$email'");
+    $row = mysqli_fetch_assoc($result);
+    $amount = $row['total_price'];
+    if (isset($_GET['useDiamonds'])) {
+        if ($_SESSION['user_type'] == "normal") {
+            $user_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT diamonds FROM `new user` WHERE Email='$email'"));
+        } else if ($_SESSION['user_type'] == "gmail") {
+            $user_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT diamonds FROM `google users` WHERE email='$email'"));
+        }
+        $diamonds = $user_data['diamonds'];
+        if ($diamonds > $amount) {
+            $amount = 0;
+        } else {
+            $amount = $amount - $diamonds;
+        }
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $order_id = uniqid();
+    $name = $_POST['name'];
+    $phone = $_POST['phone'];
+    $altPhone = $_POST['altPhone'];
+    $email = $_POST['email'];
+    $address = $_POST['address'];
+    $pincode = $_POST['pincode'];
+    $city = $_POST['city'];
+    $landmark = $_POST['landmark'];
+    $amount = $_POST['amount'];
+    date_default_timezone_set('Asia/Kolkata');
+    $added_on = date('Y-m-d h:i:s');
+
+    $stmt = $con->prepare("INSERT INTO `payment`(`order_id`, `Name`, `Phoneno`, `AltPno`, `Email`, `Address`, `Pincode`, `City`, `Landmark`, `amount`, `payment_mode`, `payment_status`, `payment_id`, `added_on`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'offline', 'complete', '', ?)");
+    $stmt->bind_param("ssssssssiss", $order_id, $name, $phone, $altPhone, $email, $address, $pincode, $city, $landmark, $amount, $added_on);
+
+    if ($stmt->execute()) {
+        $param = isset($_GET['useDiamonds']) ? "&useDiamonds=" . $_GET['useDiamonds'] : "";
+        header("Location: thank_you.php?amount=$amount$param&order_id=$order_id");
+        exit();
+    } else {
+        echo "Error: " . $stmt->error;
+    }
+
+    $stmt->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Details & Billing</title>
+    <link rel="icon" type="image/x-icon" href="finalogo.jpeg">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -131,52 +184,99 @@
             outline: none;
             border-color: #4caf50;
         }
+        .require{
+            color:red;
+            font-weight: bolder;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="user-details">
             <h2>User Details</h2>
-            <form> 
+            <form method="post" id="paymentForm"> 
             <div class="form-group">
-                <label for="name">Name:</label>
+                <label for="name">Name <span class="require">*</span></label>
                 <input type="text" id="name" name="name" required>
             </div>
             <div class="form-group">
-                <label for="phone">Phone Number:</label>
+                <label for="phone">Phone Number <span class="require">*</span></label>
                 <input type="tel" id="phone" name="phone" required maxlength="10">
             </div>
             <div class="form-group">
-                <label for="altPhone">Alternative Phone Number:</label>
+                <label for="altPhone">Alternative Phone Number <span> (optional)</span></label>
                 <input type="tel" id="altPhone" name="altPhone" maxlength="10">
             </div>
             <div class="form-group">
-                <label for="email">Email:</label>
+                <label for="email">Email <span class="require">*</span></label>
                 <input type="email" id="email" name="email" required>
             </div>
             <div class="form-group">
-                <label for="address">Address:</label>
+                <label for="address">Address <span class="require">*</span></label>
                 <textarea id="address" name="address" rows="3" required style="resize:none;"></textarea>
             </div>
             <div class="form-group">
-                <label for="pincode">Pincode:</label>
+                <label for="pincode">Pincode <span class="require">*</span></label>
                 <input type="text" id="pincode" name="pincode" required>
             </div>
             <div class="form-group">
-                <label for="city">City:</label>
+                <label for="city">City <span class="require">*</span></label>
                 <input type="text" id="city" name="city" required>
             </div>
             <div class="form-group">
-                <label for="landmark">Landmark:</label>
+                <label for="landmark">Landmark <span> (optional)</span></label>
                 <input type="text" id="landmark" name="landmark">
             </div>
         </div>
         <div class="billing-details">
             <h2>Amount to pay</h2>
-            <div class="billing-amount">&#x20B9; 335</div>
-            <input type="button" class="pay-now-btn" value="Pay" style="cursor:pointer" onclick="pay_now()">
+            <div class="billing-amount">&#x20B9; <?php echo $amount;?> </div>
+             <?php if($amount == 0 && !isset($_GET['useDiamonds'])): ?>
+                <input type="button" class="pay-now-btn" value="Pay Now" style="cursor:pointer" onclick="pay_now_alert()">
+            <?php elseif($amount == 0 && isset($_GET['useDiamonds'])): ?>
+            <?php else: ?>
+                <input type="button" class="pay-now-btn" value="Pay Now" style="cursor:pointer" onclick="pay_now()">
+                <?php endif; if ($amount == 0 && isset($_GET['useDiamonds'])): ?>
+                <h2></h2>
+                <?php else: ?>
+                <h2>OR</h2>
+                <?php endif; ?>
+            <input type="hidden" name="amount" value="<?php echo $amount; ?>">
+            <input type="button" class="pay-now-btn" value="Pay On Delivery" style="cursor:pointer" onclick="payOnDelivery()">
         </div>
     </form>
     </div>
 </body>
 </html>
+<script>
+    function pay_now_alert(){
+        alert('Add an item to the cart');
+        window.location.href = 'cart.php';
+    }
+
+    function payOnDelivery() {
+        var name = document.getElementById('name').value.trim();
+        var phone = document.getElementById('phone').value.trim();
+        var altPhone = document.getElementById('altPhone').value.trim();
+        var email = document.getElementById('email').value.trim();
+        var address = document.getElementById('address').value.trim();
+        var pincode = document.getElementById('pincode').value.trim();
+        var city = document.getElementById('city').value.trim();
+        var landmark = document.getElementById('landmark').value.trim();
+        var amount = <?php echo $amount; ?>;
+        
+        <?php if ($amount == 0 && !isset($_GET['useDiamonds'])): ?>
+            alert('Add an item to the cart');
+            window.location.href = 'cart.php';
+            return false;
+            <?php endif; ?>
+
+        if (name === '' || phone === '' || email === '' || address === '' || pincode === '' || city === '') {
+            alert('Please fill in all required fields.');
+            return false;
+        }
+
+        document.getElementById('paymentForm').submit();
+    }
+</script>
